@@ -3,8 +3,7 @@
 End-to-end data pipeline and Looker Studio dashboard ranking Ohio manufacturers
 by their H-1B sponsorship activity in US fiscal year 2025.
 
-See **[BUSINESS.md](BUSINESS.md)** for what the metrics mean and why they matter,
-and **[CLAUDE.md](CLAUDE.md)** for build constraints and conventions.
+See **[BUSINESS.md](BUSINESS.md)** for what the metrics mean and why they matter.
 
 ## Stack
 
