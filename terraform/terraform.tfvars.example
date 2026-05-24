@@ -1,0 +1,7 @@
+project_id  = "your-gcp-project-id"
+bucket_name = "schepmont-h1b-raw-<unique-suffix>"
+
+# Defaults below — uncomment to override.
+# region         = "europe-west9"
+# dataset_id     = "h1b_ohio_mfg"
+# kestra_sa_name = "kestra-ingestion"

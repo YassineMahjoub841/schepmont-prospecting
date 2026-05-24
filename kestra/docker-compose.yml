@@ -1,0 +1,64 @@
+volumes:
+  postgres-data:
+  kestra-data:
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: kestra
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kestra"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  kestra:
+    image: kestra/kestra:latest
+    pull_policy: always
+    user: "root"
+    command: server standalone
+    environment:
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/kestra
+            driverClassName: org.postgresql.Driver
+            username: kestra
+            password: kestra
+        kestra:
+          repository:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: /app/storage
+          queue:
+            type: postgres
+          server:
+            basicAuth:
+              enabled: false
+      # Surface the project's runtime config to Python tasks via Kestra envs.
+      KESTRA_ENVS_GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+      KESTRA_ENVS_GCP_REGION: ${GCP_REGION}
+      KESTRA_ENVS_GCS_BUCKET: ${GCS_BUCKET}
+      KESTRA_ENVS_BQ_DATASET: ${BQ_DATASET}
+      KESTRA_ENVS_LCA_SOURCE_URL_TEMPLATE: ${LCA_SOURCE_URL_TEMPLATE}
+    volumes:
+      # Kestra spawns sibling containers for Python script tasks; it needs the
+      # host Docker socket to do so.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - kestra-data:/app/storage
+      - ./flows:/app/flows
+      # SA key JSON mounted read-only. The Python tasks reference it via the
+      # GOOGLE_APPLICATION_CREDENTIALS env injected by the flow.
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH}:/creds/kestra-ingestion-key.json:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy

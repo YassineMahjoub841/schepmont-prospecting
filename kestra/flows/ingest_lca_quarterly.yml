@@ -1,0 +1,44 @@
+id: ingest_lca_quarterly
+namespace: h1b
+description: |
+  Download a single quarter of DOL LCA Disclosure Data, normalize to the
+  ~25 columns we use, upload Parquet to GCS under raw/fy=YYYY/q=QN/, and
+  register/refresh the BigQuery external table.
+
+  Idempotent: re-running for the same quarter overwrites the Parquet and
+  re-registers the table. No-op if the source file is already cached locally.
+
+  Prerequisite: upload the project's `ingestion/` folder as namespace files
+  for the `h1b` namespace so the Python tasks can resolve `ingestion/*.py`.
+
+inputs:
+  - id: quarter
+    type: SELECT
+    values: ["Q1", "Q2", "Q3", "Q4"]
+    defaults: "Q1"
+  - id: fiscal_year
+    type: STRING
+    defaults: "2025"
+
+tasks:
+  - id: ingest
+    type: io.kestra.plugin.scripts.python.Commands
+    description: Run the four ingestion steps in order, in one Python container.
+    docker:
+      image: python:3.11-slim
+    namespaceFiles:
+      enabled: true
+    beforeCommands:
+      - pip install --quiet -r ingestion/requirements.txt
+    env:
+      GCP_PROJECT_ID: "{{ envs.gcp_project_id }}"
+      GCP_REGION: "{{ envs.gcp_region }}"
+      GCS_BUCKET: "{{ envs.gcs_bucket }}"
+      BQ_DATASET: "{{ envs.bq_dataset }}"
+      LCA_SOURCE_URL_TEMPLATE: "{{ envs.lca_source_url_template }}"
+      GOOGLE_APPLICATION_CREDENTIALS: /creds/kestra-ingestion-key.json
+    commands:
+      - python ingestion/download_lca.py     --quarter {{ inputs.quarter }} --fiscal-year {{ inputs.fiscal_year }} --out /tmp/lca.xlsx
+      - python ingestion/normalize_columns.py --in /tmp/lca.xlsx --out /tmp/lca.parquet
+      - python ingestion/upload_to_gcs.py     --in /tmp/lca.parquet --fiscal-year {{ inputs.fiscal_year }} --quarter {{ inputs.quarter }}
+      - python ingestion/register_raw_table.py
