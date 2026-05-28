@@ -1,0 +1,145 @@
+<svg viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#a855f7"/>
+    </marker>
+    <marker id="arrow-small" markerWidth="8" markerHeight="8" refX="7" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,5 L7,2.5 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="720" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="600" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Ohio Manufacturing H-1B Sponsorship Intelligence</text>
+  <text x="600" y="56" text-anchor="middle" font-size="13" fill="#64748b">DOL LCA data → BigQuery → Looker Studio, orchestrated by Kestra, provisioned by Terraform</text>
+
+  <!-- KESTRA orchestration band (top) -->
+  <rect x="60" y="84" width="1080" height="56" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="80" y="108" font-size="14" font-weight="700" fill="#7c3aed">⚙  Kestra — orchestration layer</text>
+  <text x="80" y="127" font-size="12" fill="#7c3aed">Schedules quarterly ingestion · triggers dbt runs after fresh loads · monitors execution and alerts on failure</text>
+
+  <!-- ============ MAIN DATA FLOW ROW ============ -->
+
+  <!-- DOL source -->
+  <rect x="60" y="200" width="120" height="100" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+  <text x="120" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">DOL</text>
+  <text x="120" y="250" text-anchor="middle" font-size="11" fill="#92400e">LCA Disclosure</text>
+  <text x="120" y="266" text-anchor="middle" font-size="11" fill="#92400e">Quarterly XLSX</text>
+  <text x="120" y="288" text-anchor="middle" font-size="10" font-style="italic" fill="#a16207">External source</text>
+
+  <!-- Python ingest -->
+  <rect x="220" y="200" width="140" height="100" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+  <text x="290" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">Python</text>
+  <text x="290" y="250" text-anchor="middle" font-size="11" fill="#065f46">Download · filter</text>
+  <text x="290" y="266" text-anchor="middle" font-size="11" fill="#065f46">column normalize</text>
+  <text x="290" y="288" text-anchor="middle" font-size="10" font-style="italic" fill="#047857">Ingestion</text>
+
+  <!-- GCS -->
+  <rect x="400" y="200" width="120" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="460" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">GCS</text>
+  <text x="460" y="250" text-anchor="middle" font-size="11" fill="#1e40af">Raw Parquet</text>
+  <text x="460" y="266" text-anchor="middle" font-size="11" fill="#1e40af">1 prefix / quarter</text>
+  <text x="460" y="288" text-anchor="middle" font-size="10" font-style="italic" fill="#1d4ed8">Object storage</text>
+
+  <!-- BigQuery container -->
+  <rect x="560" y="170" width="380" height="200" rx="10" fill="#f8fafc" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="750" y="192" text-anchor="middle" font-size="13" font-weight="700" fill="#0369a1">BigQuery — data warehouse</text>
+
+  <!-- raw schema -->
+  <rect x="580" y="208" width="80" height="56" rx="5" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="620" y="230" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">raw</text>
+  <text x="620" y="248" text-anchor="middle" font-size="10" fill="#92400e">load-only</text>
+  <text x="620" y="260" text-anchor="middle" font-size="9" fill="#92400e">tables</text>
+
+  <!-- staging schema -->
+  <rect x="680" y="208" width="80" height="56" rx="5" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="720" y="230" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">staging</text>
+  <text x="720" y="248" text-anchor="middle" font-size="10" fill="#1e40af">stg_*</text>
+  <text x="720" y="260" text-anchor="middle" font-size="9" fill="#1e40af">filter + cast</text>
+
+  <!-- intermediate schema -->
+  <rect x="780" y="208" width="80" height="56" rx="5" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="820" y="230" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">intermediate</text>
+  <text x="820" y="248" text-anchor="middle" font-size="10" fill="#1e40af">int_*</text>
+  <text x="820" y="260" text-anchor="middle" font-size="9" fill="#1e40af">normalize + join</text>
+
+  <!-- marts schema -->
+  <rect x="880" y="208" width="40" height="56" rx="5" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+  <text x="900" y="230" text-anchor="middle" font-size="10" font-weight="700" fill="#065f46">marts</text>
+  <text x="900" y="246" text-anchor="middle" font-size="8" fill="#065f46">fact_</text>
+  <text x="900" y="256" text-anchor="middle" font-size="8" fill="#065f46">dim_/mart_</text>
+
+  <!-- arrows between schemas inside BigQuery -->
+  <path d="M 660 236 L 678 236" stroke="#475569" stroke-width="1.5" fill="none" marker-end="url(#arrow-small)"/>
+  <path d="M 760 236 L 778 236" stroke="#475569" stroke-width="1.5" fill="none" marker-end="url(#arrow-small)"/>
+  <path d="M 860 236 L 878 236" stroke="#475569" stroke-width="1.5" fill="none" marker-end="url(#arrow-small)"/>
+
+  <!-- dbt overlay -->
+  <rect x="680" y="290" width="240" height="60" rx="5" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="800" y="312" text-anchor="middle" font-size="12" font-weight="700" fill="#991b1b">dbt-bigquery — transformations</text>
+  <text x="800" y="328" text-anchor="middle" font-size="10" fill="#991b1b">3-layer SQL models · tests · seeds (NAICS, employer aliases)</text>
+  <text x="800" y="343" text-anchor="middle" font-size="10" font-style="italic" fill="#991b1b">operates on staging → intermediate → marts</text>
+
+  <!-- Looker Studio -->
+  <rect x="980" y="200" width="160" height="100" rx="8" fill="#fdf4ff" stroke="#c026d3" stroke-width="2"/>
+  <text x="1060" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#86198f">Looker Studio</text>
+  <text x="1060" y="250" text-anchor="middle" font-size="11" fill="#86198f">3-page dashboard</text>
+  <text x="1060" y="266" text-anchor="middle" font-size="10" fill="#86198f">Overview · Employers · Roles</text>
+  <text x="1060" y="288" text-anchor="middle" font-size="10" font-style="italic" fill="#a21caf">BI / viz</text>
+
+  <!-- main flow arrows -->
+  <path d="M 180 250 L 218 250" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 360 250 L 398 250" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 520 250 L 578 250" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 940 250 L 978 250" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Kestra orchestration arrows down -->
+  <path d="M 290 140 L 290 198" stroke="#a855f7" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#arrow-purple)"/>
+  <text x="296" y="170" font-size="9" fill="#7c3aed" font-style="italic">triggers</text>
+  <path d="M 800 140 L 800 288" stroke="#a855f7" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#arrow-purple)"/>
+  <text x="806" y="170" font-size="9" fill="#7c3aed" font-style="italic">triggers</text>
+
+  <!-- ============ USERS SECTION ============ -->
+
+  <text x="600" y="420" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">Users — where the value lands</text>
+
+  <!-- Schepmont recruiter -->
+  <rect x="320" y="440" width="240" height="100" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="440" y="466" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412">Schepmont Recruiter</text>
+  <text x="440" y="488" text-anchor="middle" font-size="11" fill="#9a3412">Filters dashboard to find</text>
+  <text x="440" y="504" text-anchor="middle" font-size="11" fill="#9a3412">top OH manufacturers to prospect</text>
+  <text x="440" y="520" text-anchor="middle" font-size="11" fill="#9a3412">by score, role, sub-sector, MSA</text>
+
+  <!-- Job-Hopper candidate -->
+  <rect x="640" y="440" width="240" height="100" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="760" y="466" text-anchor="middle" font-size="13" font-weight="700" fill="#9a3412">Job-Hopper Candidate</text>
+  <text x="760" y="488" text-anchor="middle" font-size="11" fill="#9a3412">Looks up which OH manufacturers</text>
+  <text x="760" y="504" text-anchor="middle" font-size="11" fill="#9a3412">sponsor their role, with realistic</text>
+  <text x="760" y="520" text-anchor="middle" font-size="11" fill="#9a3412">wages and consistency signals</text>
+
+  <!-- arrows from Looker to users -->
+  <path d="M 1020 300 Q 980 380 760 438" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 1020 300 Q 870 390 442 438" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ============ TERRAFORM foundation ============ -->
+
+  <rect x="60" y="590" width="1080" height="56" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="80" y="614" font-size="14" font-weight="700" fill="#334155">🏗  Terraform — infrastructure as code</text>
+  <text x="80" y="633" font-size="12" fill="#334155">Provisions the GCS bucket and the BigQuery dataset · state stored in a remote backend · reproducible from clone</text>
+
+  <!-- Legend -->
+  <text x="60" y="685" font-size="10" fill="#64748b">Legend:</text>
+  <line x1="100" y1="681" x2="130" y2="681" stroke="#475569" stroke-width="2"/>
+  <text x="135" y="685" font-size="10" fill="#64748b">data flow</text>
+  <line x1="195" y1="681" x2="225" y2="681" stroke="#a855f7" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="230" y="685" font-size="10" fill="#64748b">Kestra orchestration trigger</text>
+  <rect x="380" y="677" width="20" height="9" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="405" y="685" font-size="10" fill="#64748b">cross-cutting concern (orchestration / IaC)</text>
+
+  <text x="600" y="705" text-anchor="middle" font-size="10" font-style="italic" fill="#94a3b8">Scope: Ohio · NAICS 31–33 · FY2025 · H-1B only · Certified LCAs</text>
+</svg>
